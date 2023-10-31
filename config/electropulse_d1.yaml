@@ -12,7 +12,7 @@ esphome:
   comment: "Дельта-счётчик электроэнергии на основе подсчёта импульсов"
   project:
     name: ivanych.electropulse-d1
-    version: 0.1.0
+    version: 1.0.0
 
 esp32:
   board: ${esp32_board}

@@ -1,0 +1,14 @@
+version: '3'
+services:
+  esphome:
+    container_name: esphome
+    privileged: true
+    network_mode: host
+    image: ${ESPHOME_IMAGE}
+    environment:
+      - USERNAME=admin
+      - PASSWORD=admin
+    volumes:
+      - ${PWD}/config:/config
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped

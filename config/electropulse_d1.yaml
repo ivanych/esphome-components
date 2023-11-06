@@ -12,7 +12,7 @@ esphome:
   comment: "Дельта-счётчик электроэнергии на основе подсчёта импульсов"
   project:
     name: ivanych.electropulse-d1
-    version: 1.0.0
+    version: 1.1.0
 
 esp32:
   board: ${esp32_board}
@@ -244,6 +244,7 @@ sensor:
     lambda: |-
       float my_minute_pulse    = id(globals_minute_pulse);
       id(globals_minute_pulse) = 0;
+      id(sensor_minute_energy).publish_state(0);
       return my_minute_pulse;
     filters:
       - lambda: |-

@@ -244,6 +244,7 @@ sensor:
     lambda: |-
       float my_minute_pulse    = id(globals_minute_pulse);
       id(globals_minute_pulse) = 0;
+      id(sensor_minute_energy).publish_state(0);
       return my_minute_pulse;
     filters:
       - lambda: |-

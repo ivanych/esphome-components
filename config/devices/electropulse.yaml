@@ -1,0 +1,249 @@
+substitutions:
+  timezone:       'Europe/Moscow'
+  pulse_timeout:  '10s'
+  debounce_delay: '5ms'
+
+esphome:
+  name: ${project_name}
+  friendly_name: ${friendly_name}
+  comment: "Дельта-счётчик электроэнергии на основе подсчёта импульсов"
+  project:
+    name: ivanych.${project_name}
+    version: 1.2.0
+
+globals:
+
+  # Импульсов с начала суток
+  - id: globals_daily_pulse
+    type: float
+    restore_value: false
+    initial_value: "0.0"
+
+  # Импульсов с начала часа
+  - id: globals_hourly_pulse
+    type: float
+    restore_value: false
+    initial_value: "0.0"
+
+  # Импульсов с начала минуты
+  - id: globals_minute_pulse
+    type: float
+    restore_value: false
+    initial_value: "0.0"
+
+status_led:
+  pin: ${status_led_pin}
+
+output:
+  - platform: gpio
+    pin: ${pulse_led_pin}
+    id: output_pulse_led
+
+text_sensor:
+
+  # Информация о wifi-подключении
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address"
+      icon: mdi:ip-outline
+    ssid:
+      name: "Wi-Fi"
+      icon: mdi:wifi
+
+  # Время задержки для устранения дребезга модуля фотодиода
+  - platform: template
+    name: "Debounce Delay"
+    id: txtsensor_debounce_delay
+    icon: mdi:pulse
+    update_interval: 1d
+    lambda: |-
+      return {"$debounce_delay"};
+    entity_category: diagnostic
+
+  # Таймаут ожидания следующего импульса
+  - platform: template
+    name: "Pulse Timeout"
+    id: txtsensor_pulse_timeout
+    icon: mdi:timer-sand
+    update_interval: 1d
+    lambda: |-
+      return {"$pulse_timeout"};
+    entity_category: diagnostic
+
+  # Часовой пояс
+  - platform: template
+    name: "Timezone"
+    id: txtsensor_timezone
+    icon: mdi:map-clock-outline
+    update_interval: 1d
+    lambda: |-
+      return {"$timezone"};
+    entity_category: diagnostic
+
+sensor:
+
+  # Передаточное число счётчика
+  - platform: template
+    name: "Pulse Rate"
+    id: sensor_pulse_rate
+    icon: mdi:scale
+    accuracy_decimals: 0
+    update_interval: 1d
+    lambda: |-
+      return $pulse_rate;
+    entity_category: diagnostic
+
+  # Продолжительность текущей сессии
+  - platform: uptime
+    name: "Uptime"
+    id: sensor_uptime
+
+  # Уровень сигнала Wi-Fi
+  - platform: wifi_signal
+    name: "Wi-Fi Signal"
+    id: sensor_wifi_signal
+    unit_of_measurement: "%"
+    icon: mdi:wifi-strength-2
+    entity_category: "diagnostic"
+    filters:
+      # Уровень из dB пересчитываем в проценты
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+
+  # Потребляемая мощность
+  - platform: pulse_meter
+    name: "Power Consumption"
+    id: sensor_power
+    unit_of_measurement: "W"
+    pin:
+      number: ${pulse_pin}
+      inverted: true
+    icon: mdi:speedometer
+    accuracy_decimals: 0
+
+    # Значение по умолчанию edge, но в таком режиме импульс почему-то засчитывается дважды
+    # Нормально считает только в режиме pulse
+    internal_filter_mode: pulse
+
+    # Время задержки для устранения дребезга модуля фотодиода
+    # Фотодиод дребезжит при медленном увеличении потока света (если рукой подносить фонарик)
+    # Диод на электросчётчике вспыхивает быстро и дребезг не возникает, но для успокоения совести сделаем антидребезг
+    internal_filter: ${debounce_delay}
+    device_class: power
+    state_class: measurement
+
+    # Таймаут ожидания следующего импульса
+    # Если за это время не будет импульса — считаем, что потребление энергии прекратилось, мощность станет 0
+    timeout: $pulse_timeout
+    filters:
+      - throttle: 1s
+      # Cенсор считает импульсы в минутах, нужно привести к часам, потому что передаточное число задаётся в часах
+      - lambda: |-
+          float pph = x * 60;                            // Импульсы в час
+          float kw  = pph / id(sensor_pulse_rate).state; // Киловатты
+          float w   = kw * 1000;                         // Ватты
+          return w;
+
+    # Импульсов с начала сессии
+    total:
+      name: "Session Pulse"
+      id: sensor_session_pulse
+      unit_of_measurement: "imp"
+      icon: mdi:led-on
+      state_class: total_increasing
+      on_raw_value:
+        then:
+          - lambda: |-
+              float my_daily_pulse  = id(globals_daily_pulse);
+              float my_hourly_pulse = id(globals_hourly_pulse);
+              float my_minute_pulse = id(globals_minute_pulse);
+
+              id(globals_daily_pulse)  = isnan(my_daily_pulse)  ? 0 : my_daily_pulse  + 1;
+              id(globals_hourly_pulse) = isnan(my_hourly_pulse) ? 0 : my_hourly_pulse + 1;
+              id(globals_minute_pulse) = isnan(my_minute_pulse) ? 0 : my_minute_pulse + 1;
+      filters:
+        - throttle: 1s
+      on_value:
+        then:
+          - output.turn_on:
+              id: output_pulse_led
+          - delay: 0.2s
+          - output.turn_off:
+              id: output_pulse_led
+
+  # Энергия с начала суток
+  - platform: template
+    name: "Daily Energy"
+    id: sensor_daily_energy
+    unit_of_measurement: "kW⋅h"
+    icon: mdi:counter
+    accuracy_decimals: 3
+    device_class: energy
+    state_class: total_increasing
+    lambda: |-
+      return id(globals_daily_pulse);
+    filters:
+      - lambda: |-
+          return x / id(sensor_pulse_rate).state;
+
+  # Энергия с начала часа
+  - platform: template
+    name: "Hourly Energy"
+    id: sensor_hourly_energy
+    unit_of_measurement: "kW⋅h"
+    icon: mdi:counter
+    accuracy_decimals: 3
+    device_class: energy
+    state_class: total_increasing
+    lambda: |-
+      return id(globals_hourly_pulse);
+    filters:
+      - lambda: |-
+          return x / id(sensor_pulse_rate).state;
+
+  # Энергия за последнюю минуту (она же - дельта энергии для суммирования энергии за всё время в HA)
+  - platform: template
+    name: "Minute Energy"
+    id: sensor_minute_energy
+    unit_of_measurement: "kW⋅h"
+    icon: mdi:delta
+    accuracy_decimals: 3
+    device_class: energy
+    state_class: total
+    # Сброс счётчика globals_minute_pulse делаем прямо здесь, а не отдельно по крону,
+    # Чтобы и сброс и публикация происходили атомарно, за одно действие.
+    # Публикация нуля нужна для того, чтобы utility_meter в HA видел изменение значений дельты.
+    # Если дельта не меняется, то utility_meter считает, что это старое значение и не учитывает его
+    # (вероятно это баг в utility_meter).
+    lambda: |-
+      float my_minute_pulse    = id(globals_minute_pulse);
+      id(globals_minute_pulse) = 0;
+      id(sensor_minute_energy).publish_state(0);
+      return my_minute_pulse;
+    filters:
+      - lambda: |-
+          return x / id(sensor_pulse_rate).state;
+
+time:
+  - platform: homeassistant
+    id: time_homeassistant
+    timezone: ${timezone}
+    on_time:
+      - cron: '0 0 0 * * *'
+        then:
+          - pulse_meter.set_total_pulses:
+              id: sensor_power
+              value: 0
+          - lambda: |-
+              float my_daily_pulse    = id(globals_daily_pulse);
+              id(globals_daily_pulse) = 0;
+
+              id(sensor_daily_energy).publish_state(my_daily_pulse);
+              id(sensor_daily_energy).publish_state(0);
+      - cron: '0 0 * * * *'
+        then:
+          - lambda: |-
+              float my_hourly_pulse    = id(globals_hourly_pulse);
+              id(globals_hourly_pulse) = 0;
+
+              id(sensor_hourly_energy).publish_state(my_hourly_pulse);
+              id(sensor_hourly_energy).publish_state(0);

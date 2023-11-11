@@ -7,9 +7,10 @@ packages:
   device: !include
     file: devices/electropulse.yaml
     vars:
-      project_name:   'electropulse-d1-6400'
-      friendly_name:  'Electropulse-D1-6400'
-      pulse_rate:     '6400'
-      pulse_pin:      '25'
-      pulse_led_pin:  '2'
-      status_led_pin: '2'
+      project_name:    'electropulse-d1-6400'
+      friendly_name:   'Electropulse-D1-6400'
+      project_version: '1.2.0'
+      pulse_rate:      '6400'
+      pulse_pin:       '25'
+      pulse_led_pin:   '2'
+      status_led_pin:  '2'

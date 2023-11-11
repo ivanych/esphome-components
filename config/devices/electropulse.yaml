@@ -9,7 +9,7 @@ esphome:
   comment: "Дельта-счётчик электроэнергии на основе подсчёта импульсов"
   project:
     name: ivanych.${project_name}
-    version: 1.2.0
+    version: ${project_version}
 
 globals:
 

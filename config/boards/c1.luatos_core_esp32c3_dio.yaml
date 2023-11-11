@@ -1,0 +1,11 @@
+esphome:
+  platformio_options:
+    board_build.flash_mode: dio
+
+esp32:
+  board: airm2m_core_esp32c3
+  framework:
+    type: esp-idf
+  # Это костыль из-за бага в esphome для С3, иначе пины 12 и 13 (на которых светодиоды) недоступны
+  # https://github.com/esphome/feature-requests/issues/2018
+  variant: esp32s3

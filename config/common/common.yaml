@@ -1,0 +1,17 @@
+wifi:
+  ssid: ${wifi_ssid}
+  password: ${wifi_password}
+  ap:
+    password: ${wifi_ap_password}
+
+ota:
+  password: ${ota_password}
+
+api:
+  encryption:
+    key: ${api_key}
+
+logger:
+
+captive_portal:
+

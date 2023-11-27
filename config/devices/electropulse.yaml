@@ -174,7 +174,7 @@ sensor:
   - platform: template
     name: "Daily Energy"
     id: sensor_daily_energy
-    unit_of_measurement: "kW⋅h"
+    unit_of_measurement: "kWh"
     icon: mdi:counter
     accuracy_decimals: 3
     device_class: energy
@@ -189,7 +189,7 @@ sensor:
   - platform: template
     name: "Hourly Energy"
     id: sensor_hourly_energy
-    unit_of_measurement: "kW⋅h"
+    unit_of_measurement: "kWh"
     icon: mdi:counter
     accuracy_decimals: 3
     device_class: energy
@@ -204,7 +204,7 @@ sensor:
   - platform: template
     name: "Minute Energy"
     id: sensor_minute_energy
-    unit_of_measurement: "kW⋅h"
+    unit_of_measurement: "kWh"
     icon: mdi:delta
     accuracy_decimals: 3
     device_class: energy

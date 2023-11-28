@@ -105,6 +105,7 @@ sensor:
     unit_of_measurement: "%"
     icon: mdi:wifi-strength-2
     entity_category: "diagnostic"
+    device_class: ""
     filters:
       # Уровень из dB пересчитываем в проценты
       - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);

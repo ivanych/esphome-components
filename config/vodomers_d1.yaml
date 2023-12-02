@@ -1,0 +1,13 @@
+packages:
+  board:  !include
+    file: boards/d1.nodemcu_32s.yaml
+  common: !include
+    file: common/common.yaml
+    vars:
+      <<: !include secrets.yaml
+  device: !include
+    file: devices/vodomers.yaml
+    vars:
+      project_name:    'vodomers-d1'
+      friendly_name:   'Vodomers-D1'
+      project_version: '0.1.0'

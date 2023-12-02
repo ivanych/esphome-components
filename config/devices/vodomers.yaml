@@ -1,0 +1,7 @@
+esphome:
+  name: ${project_name}
+  friendly_name: ${friendly_name}
+  comment: "Счётчик расхода воды, получающий данные от водосчётчиков по RS485"
+  project:
+    name: ivanych.${project_name}
+    version: ${project_version}

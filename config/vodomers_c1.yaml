@@ -1,0 +1,13 @@
+packages:
+  board:  !include
+    file: boards/c1.luatos_core_esp32c3_dio.yaml
+  common: !include
+    file: common/common.yaml
+    vars:
+      <<: !include secrets.yaml
+  device: !include
+    file: devices/vodomers.yaml
+    vars:
+      project_name:    'vodomers-c1'
+      friendly_name:   'Vodomers-C1'
+      project_version: '0.1.0'

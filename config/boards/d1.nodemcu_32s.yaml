@@ -2,3 +2,13 @@ esp32:
   board: nodemcu-32s
   framework:
     type: arduino
+
+output:
+  - platform: gpio
+    pin:
+      number: 2
+      inverted: false
+    id: output_onboard_led
+
+status_led:
+  pin: 2

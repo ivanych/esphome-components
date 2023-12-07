@@ -1,5 +1,6 @@
 packages:
-  board:  !include boards/d1.nodemcu_32s.yaml
+  board:  !include
+    file: boards/d1.nodemcu_32s.yaml
   common: !include
     file: common/common.yaml
     vars:
@@ -12,5 +13,3 @@ packages:
       project_version: '1.2.1'
       pulse_rate:      '6400'
       pulse_pin:       '25'
-      pulse_led_pin:   '2'
-      status_led_pin:  '2'

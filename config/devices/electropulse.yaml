@@ -31,14 +31,6 @@ globals:
     restore_value: false
     initial_value: "0.0"
 
-status_led:
-  pin: ${status_led_pin}
-
-output:
-  - platform: gpio
-    pin: ${pulse_led_pin}
-    id: output_pulse_led
-
 text_sensor:
 
   # Информация о wifi-подключении
@@ -166,10 +158,10 @@ sensor:
       on_value:
         then:
           - output.turn_on:
-              id: output_pulse_led
-          - delay: 0.2s
+              id: output_onboard_led
+          - delay: 0.1s
           - output.turn_off:
-              id: output_pulse_led
+              id: output_onboard_led
 
   # Энергия с начала суток
   - platform: template

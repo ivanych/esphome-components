@@ -1,5 +1,6 @@
 packages:
-  board:  !include boards/c1.luatos_core_esp32c3_dio.yaml
+  board:  !include
+    file: boards/c1.luatos_core_esp32c3_dio.yaml
   common: !include
     file: common/common.yaml
     vars:
@@ -12,5 +13,3 @@ packages:
       project_version: '1.2.1'
       pulse_rate:      '6400'
       pulse_pin:       '6'
-      pulse_led_pin:   '13'
-      status_led_pin:  '12'

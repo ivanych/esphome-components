@@ -1,3 +1,5 @@
+# https://wiki.luatos.org/chips/esp32c3/board.html
+
 esphome:
   platformio_options:
     board_build.flash_mode: dio

@@ -1,6 +1,6 @@
 packages:
   board:  !include
-    file: boards/d1.nodemcu_32s.yaml
+    file: boards/n1.nodemcu_32s.yaml
   common: !include
     file: common/common.yaml
     vars:
@@ -8,8 +8,8 @@ packages:
   device: !include
     file: devices/electropulse.yaml
     vars:
-      project_name:    'electropulse-d1-6400'
-      friendly_name:   'Electropulse-D1-6400'
+      project_name:    'electropulse-n1-6400'
+      friendly_name:   'Electropulse-N1-6400'
       project_version: '1.2.3'
       pulse_rate:      '6400'
       pulse_pin:       '25'

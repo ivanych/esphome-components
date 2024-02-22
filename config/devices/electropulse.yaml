@@ -1,6 +1,6 @@
 substitutions:
-  timezone:       'Europe/Moscow'
-  pulse_timeout:  '10s'
+  timezone: 'Europe/Moscow'
+  pulse_timeout: '10s'
   debounce_delay: '5ms'
 
 esphome:
@@ -10,26 +10,6 @@ esphome:
   project:
     name: ivanych.${project_name}
     version: ${project_version}
-
-globals:
-
-  # Импульсов с начала суток
-  - id: globals_daily_pulse
-    type: float
-    restore_value: false
-    initial_value: "0.0"
-
-  # Импульсов с начала часа
-  - id: globals_hourly_pulse
-    type: float
-    restore_value: false
-    initial_value: "0.0"
-
-  # Импульсов с начала минуты
-  - id: globals_minute_pulse
-    type: float
-    restore_value: false
-    initial_value: "0.0"
 
 text_sensor:
 
@@ -104,7 +84,7 @@ sensor:
 
   # Потребляемая мощность
   - platform: pulse_meter
-    name: "Power Consumption"
+    name: "Power"
     id: sensor_power
     unit_of_measurement: "W"
     pin:
@@ -138,21 +118,11 @@ sensor:
 
     # Импульсов с начала сессии
     total:
-      name: "Session Pulse"
-      id: sensor_session_pulse
+      name: "Pulse"
+      id: sensor_pulse
       unit_of_measurement: "imp"
       icon: mdi:led-on
       state_class: total_increasing
-      on_raw_value:
-        then:
-          - lambda: |-
-              float my_daily_pulse  = id(globals_daily_pulse);
-              float my_hourly_pulse = id(globals_hourly_pulse);
-              float my_minute_pulse = id(globals_minute_pulse);
-
-              id(globals_daily_pulse)  = isnan(my_daily_pulse)  ? 0 : my_daily_pulse  + 1;
-              id(globals_hourly_pulse) = isnan(my_hourly_pulse) ? 0 : my_hourly_pulse + 1;
-              id(globals_minute_pulse) = isnan(my_minute_pulse) ? 0 : my_minute_pulse + 1;
       filters:
         - throttle: 1s
       on_value:
@@ -163,80 +133,29 @@ sensor:
           - output.turn_off:
               id: output_onboard_led
 
-  # Энергия с начала суток
+  # Энергия за последнюю минуту (она же - дельта для суммирования энергии в utility_meter в HA)
   - platform: template
-    name: "Daily Energy"
-    id: sensor_daily_energy
-    unit_of_measurement: "kWh"
-    icon: mdi:counter
-    accuracy_decimals: 3
-    device_class: energy
-    state_class: total_increasing
-    lambda: |-
-      return id(globals_daily_pulse);
-    filters:
-      - lambda: |-
-          return x / id(sensor_pulse_rate).state;
-
-  # Энергия с начала часа
-  - platform: template
-    name: "Hourly Energy"
-    id: sensor_hourly_energy
-    unit_of_measurement: "kWh"
-    icon: mdi:counter
-    accuracy_decimals: 3
-    device_class: energy
-    state_class: total_increasing
-    lambda: |-
-      return id(globals_hourly_pulse);
-    filters:
-      - lambda: |-
-          return x / id(sensor_pulse_rate).state;
-
-  # Энергия за последнюю минуту (она же - дельта энергии для суммирования энергии за всё время в HA)
-  - platform: template
-    name: "Minute Energy"
-    id: sensor_minute_energy
+    name: "Energy"
+    id: sensor_energy
     unit_of_measurement: "kWh"
     icon: mdi:delta
     accuracy_decimals: 3
     device_class: energy
     state_class: total
-    # Сброс счётчика globals_minute_pulse делаем прямо здесь, а не отдельно по крону,
-    # Чтобы и сброс и публикация происходили атомарно, за одно действие.
-    # Публикация нуля нужна для того, чтобы utility_meter в HA видел изменение значений дельты.
-    # Если дельта не меняется, то utility_meter считает, что это старое значение и не учитывает его
-    # (вероятно это баг в utility_meter).
     lambda: |-
-      float my_minute_pulse    = id(globals_minute_pulse);
-      id(globals_minute_pulse) = 0;
-      id(sensor_minute_energy).publish_state(0);
-      return my_minute_pulse;
+      return id(sensor_pulse).state;
+    on_raw_value:
+      then:
+        # Сбрасываем счётчик импульсов, началась новая минута остчёта
+        - pulse_meter.set_total_pulses:
+            id: sensor_power
+            value: 0
     filters:
       - lambda: |-
           return x / id(sensor_pulse_rate).state;
+    force_update: true
 
 time:
   - platform: homeassistant
     id: time_homeassistant
     timezone: ${timezone}
-    on_time:
-      - cron: '0 0 0 * * *'
-        then:
-          - pulse_meter.set_total_pulses:
-              id: sensor_power
-              value: 0
-          - lambda: |-
-              float my_daily_pulse    = id(globals_daily_pulse);
-              id(globals_daily_pulse) = 0;
-
-              id(sensor_daily_energy).publish_state(my_daily_pulse);
-              id(sensor_daily_energy).publish_state(0);
-      - cron: '0 0 * * * *'
-        then:
-          - lambda: |-
-              float my_hourly_pulse    = id(globals_hourly_pulse);
-              id(globals_hourly_pulse) = 0;
-
-              id(sensor_hourly_energy).publish_state(my_hourly_pulse);
-              id(sensor_hourly_energy).publish_state(0);

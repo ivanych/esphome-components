@@ -10,6 +10,6 @@ packages:
     vars:
       project_name:    'electropulse-m1-6400'
       friendly_name:   'Electropulse-M1-6400'
-      project_version: '1.2.3'
+      project_version: '2.0.0'
       pulse_rate:      '6400'
       pulse_pin:       '5'

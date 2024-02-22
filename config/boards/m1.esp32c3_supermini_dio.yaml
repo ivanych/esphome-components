@@ -1,3 +1,5 @@
+# https://www.nologo.tech/product/esp32/esp32C3SuperMini.html
+
 esphome:
   platformio_options:
     board_build.flash_mode: dio
@@ -14,9 +16,6 @@ output:
       inverted: true
     id: output_onboard_led
 
-# Почему-то на этой плате status_led не хочет нормально работать с output на том же пине
-# Если включить — output перестаёт работать (едва-едва светится)
+# В текущей версии esphome:2024.2.0 использовать пин 8 повторно нельзя
 #status_led:
-#  pin:
-#    number: 8
-#    inverted: true
+#  pin: 8

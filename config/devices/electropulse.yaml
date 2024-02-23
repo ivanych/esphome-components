@@ -4,8 +4,8 @@ substitutions:
   debounce_delay: '5ms'
 
 esphome:
-  name: ${project_name}
-  friendly_name: ${friendly_name}
+  name: ${project_name}-${device_number}
+  friendly_name: ${device_name}-${device_number}
   comment: "Дельта-счётчик электроэнергии на основе подсчёта импульсов"
   project:
     name: ivanych.${project_name}

@@ -1,6 +1,6 @@
 packages:
   board:  !include
-    file: boards/c1.luatos_core_esp32c3_dio.yaml
+    file: boards/m1.esp32c3_supermini_dio.yaml
   common: !include
     file: common/common.yaml
     vars:
@@ -8,8 +8,9 @@ packages:
   device: !include
     file: devices/electropulse.yaml
     vars:
-      project_name:    'electropulse-c1-6400'
-      friendly_name:   'Electropulse-C1-6400'
+      project_name:    'electropulse-m1'
+      device_name:     'Electropulse-M1'
+      device_number:   '01'
       project_version: '2.0.0'
       pulse_rate:      '6400'
-      pulse_pin:       '6'
+      pulse_pin:       '5'

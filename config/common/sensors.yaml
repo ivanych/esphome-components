@@ -1,0 +1,41 @@
+# Стандартные сенсоры, подключаемые во все устройства
+
+sensor:
+
+  # Продолжительность текущей сессии
+  - platform: uptime
+    name: "Uptime"
+    id: sensor_uptime
+
+  # Уровень сигнала Wi-Fi
+  - platform: wifi_signal
+    name: "Wi-Fi Signal"
+    id: sensor_wifi_signal
+    unit_of_measurement: "%"
+    icon: mdi:wifi-strength-2
+    entity_category: "diagnostic"
+    device_class: ""
+    filters:
+      # Уровень из dB пересчитываем в проценты
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+
+text_sensor:
+
+  # Информация о wifi-подключении
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address"
+      icon: mdi:ip-outline
+    ssid:
+      name: "Wi-Fi"
+      icon: mdi:wifi
+
+  # Часовой пояс
+  - platform: template
+    name: "Timezone"
+    id: txtsensor_timezone
+    icon: mdi:map-clock-outline
+    entity_category: diagnostic
+    update_interval: 1d
+    lambda: |-
+      return {id(time_homeassistant).now().strftime("%z (%Z)")};

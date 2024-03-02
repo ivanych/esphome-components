@@ -1,0 +1,15 @@
+packages:
+  board: !include
+    file: boards/m1.esp32c3_supermini_dio.yaml
+  common_settings: !include
+    file: common/common.yaml
+    vars:
+      <<: !include secrets.yaml
+  common_sensors: !include
+    file: common/sensors.yaml
+  device: !include
+    file: devices/vodomers.yaml
+    vars:
+      model: "m1"
+      friendly_model: "M1"
+      number: '01'

@@ -1,7 +1,18 @@
+defaults:
+  timezone: "Europe/Moscow"
+  device: "vodomers"
+  friendly_device: "Vodomers"
+  version: "0.1.0"
+
 esphome:
-  name: ${project_name}
-  friendly_name: ${friendly_name}
-  comment: "Счётчик расхода воды, получающий данные от водосчётчиков по RS485"
+  name: ${device}-${model}-${number}
+  friendly_name: ${friendly_device}-${friendly_model}-${number}
+  comment: "Модуль для чтения показаний счётчиков воды по интерфейсу RS485"
   project:
-    name: ivanych.${project_name}
-    version: ${project_version}
+    name: ivanych.${device}-${model}
+    version: ${version}
+
+time:
+  - platform: homeassistant
+    id: time_homeassistant
+    timezone: ${timezone}

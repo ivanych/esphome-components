@@ -16,3 +16,27 @@ time:
   - platform: homeassistant
     id: time_homeassistant
     timezone: ${timezone}
+
+uart:
+  tx_pin: 21
+  rx_pin: 20
+  baud_rate: 9600
+  data_bits: 8
+  parity: NONE
+  stop_bits: 1
+  debug:
+
+external_components:
+  - source:
+      type: local
+      path: components
+
+sensor:
+  - platform: pulsar_rs485
+    pm_2_5:
+      name: "Volume"
+    update_interval: 10s
+    cold:
+      name: "Cold"
+    hot:
+      name: "Hot"

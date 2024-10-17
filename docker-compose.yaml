@@ -11,4 +11,6 @@ services:
     volumes:
       - ${PWD}/config:/config
       - /etc/localtime:/etc/localtime:ro
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0
     restart: unless-stopped

@@ -11,9 +11,11 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${PWD}/config:/config
-      - ${PWD}/../esphome-devices:/config/esphome-boards
-      - ${PWD}/../esphome-devices:/config/esphome-common
+      - ${PWD}/../esphome-boards:/config/esphome-boards
+      - ${PWD}/../esphome-common:/config/esphome-common
       - ${PWD}/../esphome-devices:/config/esphome-devices
+      - ${PWD}/../esphome-units:/config/esphome-units
     devices:
       - /dev/ttyACM0:/dev/ttyACM0
+      - /dev/ttyUSB0:/dev/ttyUSB0
     restart: unless-stopped
